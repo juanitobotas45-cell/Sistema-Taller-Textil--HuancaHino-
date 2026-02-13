@@ -1,1 +1,57 @@
-CODIGO
+CREATE DATABASE TallerConfeccion;
+GO
+USE TallerConfeccion;
+GO
+CREATE TABLE Clientes (
+    PK_Cliente INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Telefono VARCHAR(20),
+    Email VARCHAR(100),
+    Direccion TEXT
+);
+
+CREATE TABLE Telas (
+    PK_Tela INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre_Tela VARCHAR(50) NOT NULL,
+    Color VARCHAR(30),
+    Metros_Disponibles DECIMAL(10,2) NOT NULL,
+    Costo_Metro DECIMAL(10,2) NOT NULL
+);
+CREATE TABLE Costureras (
+    PK_Costurera INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Especialidad VARCHAR(50),
+    Activa BIT DEFAULT 1 -- 1 para activa, 0 para inactiva
+);
+
+
+CREATE TABLE Pedidos (
+    PK_Pedido INT IDENTITY(1,1) PRIMARY KEY,
+    FK_Cliente INT NOT NULL,
+    Fecha_Recepcion DATE DEFAULT CAST(GETDATE() AS DATE),
+    Fecha_Entrega_Pactada DATE,
+    Estado VARCHAR(20) DEFAULT 'Pendiente',
+    CONSTRAINT FK_Pedido_Cliente FOREIGN KEY (FK_Cliente) REFERENCES Clientes(PK_Cliente)
+);
+
+CREATE TABLE Prendas (
+    PK_Prenda INT IDENTITY(1,1) PRIMARY KEY,
+    FK_Pedido INT NOT NULL,
+    FK_Costurera INT NOT NULL,
+    FK_Tela INT NOT NULL,
+    Tipo_Prenda VARCHAR(50),
+    Talla VARCHAR(10),
+    Metros_Usados DECIMAL(10,2),
+    CONSTRAINT FK_Prenda_Pedido FOREIGN KEY (FK_Pedido) REFERENCES Pedidos(PK_Pedido),
+    CONSTRAINT FK_Prenda_Costurera FOREIGN KEY (FK_Costurera) REFERENCES Costureras(PK_Costurera),
+    CONSTRAINT FK_Prenda_Tela FOREIGN KEY (FK_Tela) REFERENCES Telas(PK_Tela)
+);
+CREATE TABLE Finanzas (
+    PK_Transaccion INT IDENTITY(1,1) PRIMARY KEY,
+    FK_Pedido INT NULL,
+    Tipo VARCHAR(10) CHECK (Tipo IN ('Ingreso', 'Egreso')),
+    Monto DECIMAL(10,2) NOT NULL,
+    Fecha_Registro DATETIME DEFAULT GETDATE(),
+    Descripcion VARCHAR(255),
+    CONSTRAINT FK_Finanzas_Pedido FOREIGN KEY (FK_Pedido) REFERENCES Pedidos(PK_Pedido)
+);
